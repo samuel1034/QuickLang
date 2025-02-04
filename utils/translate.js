@@ -1,42 +1,21 @@
-"use client"; // Ensure this runs only in the client
-
-import { useState } from "react";
-import Groq from "groq-sdk";
-
-const apiKey = process.env.API_KEY
-
-const groq = new Groq({ apiKey: apiKey });
-
-export default function useTranslator(sourceLang = "en", targetLang = "es") {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [translatedText, setTranslatedText] = useState("");
-
-    const translateText = async (text) => {
-        setIsLoading(true);
-        setError("");
-
+export default function useTranslator() {
+    const translateText = async (source, srcLang, tgtLang) => {
         try {
-            // Make the translation request using Groq SDK
-            const chatCompletion = await groq.chat.completions.create({
-                messages: [
-                    { role: "user", content: text },
-                ],
-                model: "llama-3.3-70b-versatile", // Ensure the model is correct
+            const response = await fetch("/api/translate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ source, srcLang, tgtLang }),
             });
 
-            const translated = chatCompletion.choices[0]?.message?.content || "No translation available";
-            setTranslatedText(translated);
-            return translated;
-        } catch (err) {
-            console.error("Translation error:", err);
-            setError("Translation failed. Please try again.");
-            setTranslatedText("");
-            return "";
-        } finally {
-            setIsLoading(false);
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+            const data = await response.json();
+            return data.output;
+        } catch (error) {
+            console.error("Translation Error:", error);
+            return "Translation failed";
         }
     };
 
-    return { translateText, isLoading, error, translatedText };
+    return { translateText }; // 确保返回的是 `{ translateText }`
 }
