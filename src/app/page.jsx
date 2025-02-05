@@ -1,12 +1,20 @@
-import Navbar from "./components/Navbar"
-import Translator from "./components/Translator"
+import Navbar from "./components/Navbar";
+import Translator from "./components/Translator";
+import Footer from "./components/Footer";
 
 export default function Home() {
     return (
-        <main className="min-h-screen bg-gray-100">
+        <div className="flex flex-col min-h-screen bg-gray-100">
+            {/* Navbar */}
             <Navbar />
-            <Translator />
-        </main>
-    )
-}
 
+            {/* Main Content (Flexible Grow Area) */}
+            <main className="flex-grow p-4 bg-black">
+                <Translator />
+            </main>
+
+            {/* Footer (Stays at the Bottom) */}
+            <Footer />
+        </div>
+    );
+}
